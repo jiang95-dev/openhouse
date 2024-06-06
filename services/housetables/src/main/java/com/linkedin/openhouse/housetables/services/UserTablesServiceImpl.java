@@ -69,6 +69,7 @@ public class UserTablesServiceImpl implements UserTablesService {
 
     try {
       returnedDto = userTablesMapper.toUserTableDto(htsJdbcRepository.save(targetUserTableRow));
+      returnedDto.getTableVersion();
     } catch (CommitFailedException
         | ObjectOptimisticLockingFailureException
         | DataIntegrityViolationException e) {
