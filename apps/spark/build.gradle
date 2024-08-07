@@ -1,7 +1,6 @@
 plugins {
     id 'openhouse.java-conventions'
     id 'openhouse.hadoop-conventions'
-    id 'openhouse.iceberg-conventions'
     id 'openhouse.maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
@@ -21,12 +20,16 @@ ext {
 
 dependencies {
     implementation project(':iceberg:openhouse:internalcatalog')
-    implementation project(':client:hts')
+    implementation (project(':client:hts')) {
+        transitive = false
+    }
     implementation project(':client:jobsclient')
     implementation project(':client:tableclient')
     implementation project(':client:secureclient')
     implementation project(':services:common')
-    implementation project(':cluster:storage')
+    implementation (project(':cluster:storage')) {
+        transitive = false
+    }
     compileOnly (project(path: ':integrations:spark:openhouse-spark-runtime_2.12')) {
         exclude group: 'io.netty'
         exclude group: 'org.apache.hadoop', module: 'hadoop-common'
@@ -47,7 +50,7 @@ dependencies {
         exclude group: 'io.netty'
         exclude group: 'org.apache.curator', module: 'curator-client'
         exclude group: 'org.apache.commons', module: 'commons-lang3'
-        
+
     }
     implementation ('org.apache.iceberg:iceberg-spark-runtime-3.1_2.12:' + icebergVersion) {
         exclude group: 'io.netty'
