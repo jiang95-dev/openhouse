@@ -57,21 +57,22 @@ public class OrphanFilesDeletionSparkApp extends BaseTableSparkApp {
   @Override
   protected void runInner(Operations ops) {
     updateTtlSeconds(ops);
+    Table table = ops.getTable(fqtn);
     long olderThanTimestampMillis =
         System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(ttlSeconds);
-    Table table = ops.getTable(fqtn);
     boolean backupEnabled =
         Boolean.parseBoolean(
             table.properties().getOrDefault(AppConstants.BACKUP_ENABLED_KEY, "false"));
     log.info(
-        "Orphan files deletion app start for table={} with olderThanTimestampMillis={} backupEnabled={} and backupDir={}",
+        "Orphan files deletion app start for table={} with olderThanTimestampMillis={} ttlSeconds={} backupEnabled={} and backupDir={}",
         fqtn,
         olderThanTimestampMillis,
+        ttlSeconds,
         backupEnabled,
         backupDir);
     DeleteOrphanFiles.Result result =
         ops.deleteOrphanFiles(
-            ops.getTable(fqtn),
+            table,
             olderThanTimestampMillis,
             backupEnabled,
             backupDir,
@@ -91,20 +92,26 @@ public class OrphanFilesDeletionSparkApp extends BaseTableSparkApp {
   }
 
   /**
-   * Validate and keep min OFD TTL for replica table as 3 days if provided TTL is less than 3 days
+   * Apply the one-day OFD TTL opt-in when the table property is set, then enforce the 3-day
+   * minimum for replica tables.
    *
    * @param ops
    */
   private void updateTtlSeconds(Operations ops) {
     Table table = ops.getTable(fqtn);
+    boolean oneDayTtlEnabled =
+        Boolean.parseBoolean(
+            table.properties().getOrDefault(AppConstants.OFD_ONE_DAY_TTL_ENABLED_KEY, "false"));
+    if (oneDayTtlEnabled) {
+      ttlSeconds = TimeUnit.DAYS.toSeconds(1);
+    }
     String tableType =
         table
             .properties()
             .getOrDefault(AppConstants.OPENHOUSE_TABLE_TYPE_KEY, AppConstants.TABLE_TYPE_PRIMARY);
-    // Check if replica table and update TTL
+    // Keep the min default OFD TTL for replica tables
     if (AppConstants.TABLE_TYPE_REPLICA.equals(tableType)) {
       long days = Duration.ofSeconds(ttlSeconds).toDays();
-      // Keep the min default OFD TTL for replica tables
       if (days < DEFAULT_MIN_OFD_TTL_IN_DAYS) {
         ttlSeconds = TimeUnit.DAYS.toSeconds(DEFAULT_MIN_OFD_TTL_IN_DAYS);
       }
