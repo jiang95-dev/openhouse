@@ -141,7 +141,14 @@ public class OrphanFilesDeletionSparkAppTest extends OpenHouseSparkITest {
 
   private OrphanFilesDeletionSparkApp newApp(String tableName) {
     return new OrphanFilesDeletionSparkApp(
-        "test-job-id", null, tableName, DEFAULT_TTL_SECONDS, otelEmitter, BACKUP_DIR, 5, false,
+        "test-job-id",
+        null,
+        tableName,
+        DEFAULT_TTL_SECONDS,
+        otelEmitter,
+        BACKUP_DIR,
+        5,
+        false,
         20000);
   }
 
