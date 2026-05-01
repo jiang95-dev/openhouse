@@ -92,8 +92,8 @@ public class OrphanFilesDeletionSparkApp extends BaseTableSparkApp {
   }
 
   /**
-   * Apply the one-day OFD TTL opt-in when the table property is set, then enforce the 3-day
-   * minimum for replica tables.
+   * Apply the one-day OFD TTL opt-in when the table property is set, then enforce the 3-day minimum
+   * for replica tables.
    *
    * @param ops
    */
