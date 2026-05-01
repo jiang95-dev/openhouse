@@ -59,6 +59,7 @@ public final class AppConstants {
   public static final String OPENHOUSE_TABLE_TYPE_KEY = "openhouse.tableType";
   public static final String TABLE_TYPE_PRIMARY = "PRIMARY_TABLE";
   public static final String TABLE_TYPE_REPLICA = "REPLICA_TABLE";
+  public static final String OFD_ONE_DAY_TTL_ENABLED_KEY = "ofd.one_day_ttl.enabled";
 
   private AppConstants() {}
 }
