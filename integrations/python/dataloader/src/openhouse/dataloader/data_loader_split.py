@@ -8,6 +8,7 @@ from functools import cached_property
 from itertools import chain
 from types import MappingProxyType
 
+from datafusion import SessionConfig
 from datafusion.context import SessionContext
 from pyarrow import RecordBatch
 from pyiceberg.io.pyarrow import ArrowScan
@@ -31,13 +32,17 @@ def to_sql_identifier(table_id: TableIdentifier) -> str:
 def _create_transform_session(
     table_id: TableIdentifier,
     udf_registry: UDFRegistry,
+    batch_size: int | None = None,
 ) -> SessionContext:
     """Create a DataFusion SessionContext for running split-level transforms.
 
     Returns a ready-to-query SessionContext where UDFs are registered and the
     target schema exists.
     """
-    session = SessionContext()
+    config = SessionConfig()
+    if batch_size is not None:
+        config = config.set("datafusion.execution.batch_size", str(batch_size))
+    session = SessionContext(config)
     udf_registry.register_udfs(session)
 
     session.sql(f"CREATE SCHEMA IF NOT EXISTS {_quote_identifier(table_id.database)}").collect()
@@ -161,7 +166,7 @@ class DataLoaderSplit:
             first = next(timed, None)
             if first is None:
                 return
-            session = _create_transform_session(self._scan_context.table_id, self._udf_registry)
+            session = _create_transform_session(self._scan_context.table_id, self._udf_registry, self._batch_size)
             yield from _timed_transform(chain([first], timed), split_id, session, self._apply_transform)
 
     def _apply_transform(self, session: SessionContext, batch: RecordBatch) -> Iterator[RecordBatch]:
