@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import logging
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from functools import cached_property
-from itertools import batched
+from itertools import islice
 from types import MappingProxyType
+from typing import TypeVar
 
 from pyiceberg.catalog import Catalog
 from pyiceberg.table import Table
@@ -39,7 +42,16 @@ def _is_transient(exc: BaseException) -> bool:
     return isinstance(exc, OSError)
 
 
-def _retry[T](fn: Callable[[], T], label: str, max_attempts: int) -> T:
+_T = TypeVar("_T")  # lets the type checker infer that return types match input types
+
+
+def _batched(iterable: Iterable[_T], n: int) -> Iterator[tuple[_T, ...]]:
+    it = iter(iterable)
+    while batch := tuple(islice(it, n)):
+        yield batch
+
+
+def _retry(fn: Callable[[], _T], label: str, max_attempts: int) -> _T:
     """Call *fn* with retry logic, logging duration of each attempt.
 
     Retries on ``OSError`` (transient network/storage I/O failures),
@@ -272,7 +284,7 @@ class OpenHouseDataLoader:
             lambda: scan.plan_files(), label=f"plan_files {self._table_id}", max_attempts=self._max_attempts
         )
 
-        for chunk in batched(scan_tasks, self._files_per_split):
+        for chunk in _batched(scan_tasks, self._files_per_split):
             yield DataLoaderSplit(
                 file_scan_tasks=chunk,
                 scan_context=scan_context,
