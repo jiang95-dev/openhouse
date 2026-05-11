@@ -93,9 +93,7 @@ public class OpenHouseInternalTableOperations extends BaseMetastoreTableOperatio
   /**
    * Overrides Iceberg's {@code BaseMetastoreTableOperations.META_DATA_REFRESH_RETRIES} (20). The
    * underlying {@code refreshFromMetadataLocation} retries with exponential backoff capped at 5s,
-   * so 20 retries can stretch a single failing refresh to ~90 seconds. HTS already returns the
-   * authoritative metadata pointer, so a high retry budget mostly serves to absorb object-store
-   * read-after-write races, where a much smaller value suffices.
+   * so 20 retries can stretch a single failing refresh to ~90 seconds.
    */
   private static final int METADATA_REFRESH_RETRIES = 3;
 
