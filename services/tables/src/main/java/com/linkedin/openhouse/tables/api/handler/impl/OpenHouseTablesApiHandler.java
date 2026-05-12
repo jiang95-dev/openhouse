@@ -14,6 +14,7 @@ import com.linkedin.openhouse.tables.api.validator.TablesApiValidator;
 import com.linkedin.openhouse.tables.dto.mapper.TablesMapper;
 import com.linkedin.openhouse.tables.model.TableDto;
 import com.linkedin.openhouse.tables.services.TablesService;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -63,15 +64,15 @@ public class OpenHouseTablesApiHandler implements TablesApiHandler {
 
   @Override
   public ApiResponse<GetAllTablesResponseBody> searchTables(
-      String databaseId, int page, int size, String sortBy) {
-    tablesApiValidator.validateSearchTables(databaseId, page, size, sortBy);
+      String databaseId, int page, int size, String sortBy, List<String> columns) {
+    tablesApiValidator.validateSearchTables(databaseId, page, size, sortBy, columns);
     return ApiResponse.<GetAllTablesResponseBody>builder()
         .httpStatus(HttpStatus.OK)
         .responseBody(
             GetAllTablesResponseBody.builder()
                 .pageResults(
                     tableService
-                        .searchTables(databaseId, page, size, sortBy)
+                        .searchTables(databaseId, page, size, sortBy, columns)
                         .map(tableDto -> tablesMapper.toGetTableResponseBody(tableDto)))
                 .build())
         .build();

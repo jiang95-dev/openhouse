@@ -35,9 +35,11 @@ import com.linkedin.openhouse.tables.repository.PreservedKeyChecker;
 import com.linkedin.openhouse.tables.repository.SchemaValidator;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -702,6 +704,22 @@ public class OpenHouseInternalRepositoryImpl implements OpenHouseInternalReposit
     return ((OpenHouseInternalCatalog) catalog)
         .listTables(Namespace.of(databaseId), pageable)
         .map(tablesIdentifier -> mapper.toTableDto(tablesIdentifier));
+  }
+
+  @Timed(metricKey = MetricsConstant.REPO_TABLES_SEARCH_BY_DATABASE_PAGINATED_TIME)
+  @Override
+  public Page<TableDto> searchTables(String databaseId, Pageable pageable, List<String> columns) {
+    if (CollectionUtils.isEmpty(columns)) {
+      return searchTables(databaseId, pageable);
+    }
+    if (!(catalog instanceof OpenHouseInternalCatalog)) {
+      throw new UnsupportedOperationException(
+          "Does not support paginated search for getting all tables in a database");
+    }
+    Set<String> columnSet = new HashSet<>(columns);
+    return ((OpenHouseInternalCatalog) catalog)
+        .listHouseTables(Namespace.of(databaseId), pageable)
+        .map(houseTable -> mapper.toTableDto(houseTable, columnSet));
   }
 
   @Timed(metricKey = MetricsConstant.REPO_TABLE_IDS_FIND_ALL_TIME)

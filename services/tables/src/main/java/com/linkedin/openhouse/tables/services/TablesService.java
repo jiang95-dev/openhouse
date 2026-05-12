@@ -33,15 +33,20 @@ public interface TablesService {
   List<TableDto> searchTables(String databaseId);
 
   /**
-   * Given a databaseId, prepare list of {@link TableDto}s.
+   * Given a databaseId, prepare list of {@link TableDto}s. The returned dtos are populated with
+   * identifier fields plus any HouseTable-resident columns listed in {@code columns}. Passing null
+   * or empty returns identifier-only dtos.
    *
    * @param databaseId
    * @param page
    * @param size
    * @param sortBy
+   * @param columns optional list of {@link TableDto}/{@code GetTableResponseBody} field names to
+   *     populate in addition to identifiers
    * @return list of {@link TableDto}
    */
-  Page<TableDto> searchTables(String databaseId, int page, int size, String sortBy);
+  Page<TableDto> searchTables(
+      String databaseId, int page, int size, String sortBy, List<String> columns);
 
   /**
    * Given a {@link CreateUpdateTableRequestBody}, create or update a Openhouse table for it

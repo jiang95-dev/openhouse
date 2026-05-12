@@ -119,6 +119,15 @@ public class OpenHouseInternalCatalog extends BaseMetastoreCatalog {
         .map(houseTable -> TableIdentifier.of(houseTable.getDatabaseId(), houseTable.getTableId()));
   }
 
+  /**
+   * Paginated listing that preserves the underlying {@link HouseTable} rows, so callers can read
+   * HTS-resident columns (e.g. tableLocation) without an extra metadata.json load per table.
+   */
+  public Page<HouseTable> listHouseTables(Namespace namespace, Pageable pageable) {
+    NamespaceUtil.validateOperationNamespace(namespace);
+    return houseTableRepository.findAllByDatabaseId(namespace.toString(), pageable);
+  }
+
   @Override
   public boolean dropTable(TableIdentifier identifier, boolean purge) {
     String tableLocation = loadTable(identifier).location();

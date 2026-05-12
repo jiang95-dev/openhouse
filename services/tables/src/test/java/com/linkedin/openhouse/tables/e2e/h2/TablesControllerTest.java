@@ -26,6 +26,7 @@ import com.linkedin.openhouse.internal.catalog.model.HouseTable;
 import com.linkedin.openhouse.internal.catalog.model.SoftDeletedTablePrimaryKey;
 import com.linkedin.openhouse.tables.api.spec.v0.request.CreateUpdateLockRequestBody;
 import com.linkedin.openhouse.tables.api.spec.v0.request.CreateUpdateTableRequestBody;
+import com.linkedin.openhouse.tables.api.spec.v0.request.SearchTablesRequestBody;
 import com.linkedin.openhouse.tables.api.spec.v0.request.components.ClusteringColumn;
 import com.linkedin.openhouse.tables.api.spec.v0.request.components.History;
 import com.linkedin.openhouse.tables.api.spec.v0.request.components.Policies;
@@ -1024,6 +1025,56 @@ public class TablesControllerTest {
     for (int i = 0; i < 10; i++) {
       RequestAndValidateHelper.deleteTableAndValidateResponse(mvc, tables.get(i));
     }
+  }
+
+  @Test
+  public void testSearchTablesPaginatedWithTableLocationColumn() throws Exception {
+    List<GetTableResponseBody> tables = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      GetTableResponseBody table = buildGetTableResponseBodyWithDbTbl("d1", "tloc" + i);
+      tables.add(table);
+      RequestAndValidateHelper.createTableAndValidateResponse(table, mvc, storageManager);
+    }
+
+    String body =
+        SearchTablesRequestBody.builder().columns(Arrays.asList("tableLocation")).build().toJson();
+
+    mvc.perform(
+            MockMvcRequestBuilders.post("/v2/databases/d1/tables/search")
+                .param("page", "0")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(jsonPath("$.pageResults.content", hasSize(3)))
+        .andExpect(jsonPath("$.pageResults.content[0].tableId", notNullValue()))
+        .andExpect(jsonPath("$.pageResults.content[0].databaseId", is("d1")))
+        .andExpect(jsonPath("$.pageResults.content[0].tableLocation", notNullValue()))
+        .andExpect(
+            jsonPath(
+                "$.pageResults.content[0].tableLocation",
+                org.hamcrest.Matchers.endsWith(".metadata.json")));
+
+    for (GetTableResponseBody t : tables) {
+      RequestAndValidateHelper.deleteTableAndValidateResponse(mvc, t);
+    }
+  }
+
+  @Test
+  public void testSearchTablesPaginatedRejectsUnknownColumn() throws Exception {
+    String body =
+        SearchTablesRequestBody.builder().columns(Arrays.asList("schema")).build().toJson();
+
+    mvc.perform(
+            MockMvcRequestBuilders.post("/v2/databases/d1/tables/search")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message", containsString("schema")))
+        .andExpect(jsonPath("$.message", containsString("tableLocation")));
   }
 
   @Test
