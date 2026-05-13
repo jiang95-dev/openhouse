@@ -40,7 +40,7 @@ public interface TablesApiHandler {
    * Function to Get one Page of Table Resources in a given databaseId given the page size and sort
    * the results by the sortBy field. The caller may optionally request that additional fields
    * (beyond databaseId + tableId) be populated on each returned table. When {@code fields} is
-   * non-empty, {@code actingPrincipal} must hold SYSTEM_ADMIN on the database.
+   * non-empty, {@code actingPrincipal} must hold GET_TABLE_METADATA on the database.
    *
    * @param databaseId
    * @param page

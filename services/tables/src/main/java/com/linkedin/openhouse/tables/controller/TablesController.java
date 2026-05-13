@@ -123,9 +123,9 @@ public class TablesController {
       @Parameter(
               description =
                   "Optional list of GetTableResponseBody field names to populate beyond the "
-                      + "identifiers (databaseId, tableId). Requires SYSTEM_ADMIN on the database "
-                      + "when set. Supported values: \"tableLocation\". Accepts comma-separated "
-                      + "(?fields=a,b) or repeated (?fields=a&fields=b) values.")
+                      + "identifiers (databaseId, tableId). Requires GET_TABLE_METADATA on the "
+                      + "database when set. Supported values: \"tableLocation\". Accepts "
+                      + "comma-separated (?fields=a,b) or repeated (?fields=a&fields=b) values.")
           @RequestParam(name = "fields", required = false)
           List<String> fields) {
 

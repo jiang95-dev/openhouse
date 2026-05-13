@@ -90,7 +90,7 @@ public class TablesServiceImpl implements TablesService {
       String actingPrincipal) {
     if (fields != null && !fields.isEmpty()) {
       authorizationUtils.checkDatabasePrivilege(
-          databaseId, actingPrincipal, Privileges.SYSTEM_ADMIN);
+          databaseId, actingPrincipal, Privileges.GET_TABLE_METADATA);
     }
     Pageable pageable = createPageable(page, size, sortBy, null);
     return openHouseInternalRepository.searchTables(databaseId, pageable, fields);

@@ -37,10 +37,10 @@ public interface TablesService {
    * identifier fields plus any HouseTable-resident fields listed in {@code fields}. Passing null or
    * empty returns identifier-only dtos.
    *
-   * <p>When {@code fields} is non-empty, {@code actingPrincipal} must hold the {@code SYSTEM_ADMIN}
-   * privilege on the database — per-table sharing ACLs are not consulted by this call, so this
-   * guard prevents non-admins from bulk-reading field data they would not be able to read
-   * table-by-table.
+   * <p>When {@code fields} is non-empty, {@code actingPrincipal} must hold the {@code
+   * GET_TABLE_METADATA} privilege on the database — per-table sharing ACLs are not consulted by
+   * this call, so this guard prevents callers from bulk-reading field data on tables they would not
+   * be authorized to read individually.
    *
    * @param databaseId
    * @param page
