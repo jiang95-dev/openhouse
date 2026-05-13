@@ -1,6 +1,5 @@
 package com.linkedin.openhouse.tables.api.spec.v0.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.Gson;
 import com.linkedin.openhouse.tables.api.spec.v0.request.components.ClusteringColumn;
@@ -50,7 +49,6 @@ public class GetTableResponseBody {
       example =
           "<fs>://<hostname>/<openhouse_namespace>/<database_name>/<tableUUID>/metadata/<uuid>.metadata.json")
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-  @JsonInclude(JsonInclude.Include.NON_NULL)
   private String tableLocation;
 
   @Schema(description = "Current Version of the Table.", example = "")
