@@ -86,14 +86,14 @@ public class TablesServiceImpl implements TablesService {
       int page,
       int size,
       String sortBy,
-      List<String> columns,
+      List<String> fields,
       String actingPrincipal) {
-    if (columns != null && !columns.isEmpty()) {
+    if (fields != null && !fields.isEmpty()) {
       authorizationUtils.checkDatabasePrivilege(
           databaseId, actingPrincipal, Privileges.SYSTEM_ADMIN);
     }
     Pageable pageable = createPageable(page, size, sortBy, null);
-    return openHouseInternalRepository.searchTables(databaseId, pageable, columns);
+    return openHouseInternalRepository.searchTables(databaseId, pageable, fields);
   }
 
   @WithSpan("TablesService.putTable")

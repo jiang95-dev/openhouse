@@ -635,11 +635,11 @@ public class TablesServiceTest {
   }
 
   @Test
-  public void testSearchTablesWithColumnsRequiresSystemAdmin() {
+  public void testSearchTablesWithFieldsRequiresSystemAdmin() {
     TableDto tableDtoCopy = TABLE_DTO.toBuilder().build();
     verifyPutTableRequest(tableDtoCopy, null, true);
 
-    // No columns requested — identifier-only search must succeed regardless of SYSTEM_ADMIN.
+    // No fields requested — identifier-only search must succeed regardless of SYSTEM_ADMIN.
     Mockito.when(
             authorizationHandler.checkAccessDecision(
                 Mockito.any(), Mockito.any(DatabaseDto.class), Mockito.eq(Privileges.SYSTEM_ADMIN)))
@@ -652,7 +652,7 @@ public class TablesServiceTest {
         () ->
             tablesService.searchTables(tableDtoCopy.getDatabaseId(), 0, 10, null, null, TEST_USER));
 
-    // Columns requested but SYSTEM_ADMIN denied — must throw.
+    // Fields requested but SYSTEM_ADMIN denied — must throw.
     Assertions.assertThrows(
         AccessDeniedException.class,
         () ->
@@ -664,7 +664,7 @@ public class TablesServiceTest {
                 Arrays.asList("tableLocation"),
                 TEST_USER));
 
-    // Allow SYSTEM_ADMIN — column-search now succeeds.
+    // Allow SYSTEM_ADMIN — field-projection search now succeeds.
     Mockito.when(
             authorizationHandler.checkAccessDecision(
                 Mockito.any(), Mockito.any(DatabaseDto.class), Mockito.eq(Privileges.SYSTEM_ADMIN)))

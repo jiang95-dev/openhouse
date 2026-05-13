@@ -34,12 +34,12 @@ public interface TablesApiValidator {
    * @param page
    * @param size
    * @param sortBy
-   * @param columns optional list of GetTableResponseBody field names to populate
+   * @param fields optional list of GetTableResponseBody field names to populate
    * @throws com.linkedin.openhouse.common.exception.RequestValidationFailureException if request is
    *     invalid
    */
   void validateSearchTables(
-      String databaseId, int page, int size, String sortBy, List<String> columns);
+      String databaseId, int page, int size, String sortBy, List<String> fields);
 
   /**
    * Function to validate a request to create a Table Resource.

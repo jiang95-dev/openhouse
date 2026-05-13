@@ -69,7 +69,7 @@ public class MockTablesApiHandler implements TablesApiHandler {
       int page,
       int size,
       String sortBy,
-      List<String> columns,
+      List<String> fields,
       String actingPrincipal) {
     return null;
   }

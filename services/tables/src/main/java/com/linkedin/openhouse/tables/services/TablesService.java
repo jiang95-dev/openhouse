@@ -34,21 +34,21 @@ public interface TablesService {
 
   /**
    * Given a databaseId, prepare list of {@link TableDto}s. The returned dtos are populated with
-   * identifier fields plus any HouseTable-resident columns listed in {@code columns}. Passing null
-   * or empty returns identifier-only dtos.
+   * identifier fields plus any HouseTable-resident fields listed in {@code fields}. Passing null or
+   * empty returns identifier-only dtos.
    *
-   * <p>When {@code columns} is non-empty, {@code actingPrincipal} must hold the {@code
-   * SYSTEM_ADMIN} privilege on the database — per-table sharing ACLs are not consulted by this
-   * call, so this guard prevents non-admins from bulk-reading column data they would not be able to
-   * read table-by-table.
+   * <p>When {@code fields} is non-empty, {@code actingPrincipal} must hold the {@code SYSTEM_ADMIN}
+   * privilege on the database — per-table sharing ACLs are not consulted by this call, so this
+   * guard prevents non-admins from bulk-reading field data they would not be able to read
+   * table-by-table.
    *
    * @param databaseId
    * @param page
    * @param size
    * @param sortBy
-   * @param columns optional list of {@link TableDto}/{@code GetTableResponseBody} field names to
+   * @param fields optional list of {@link TableDto}/{@code GetTableResponseBody} field names to
    *     populate in addition to identifiers
-   * @param actingPrincipal authenticated user; required when {@code columns} is non-empty
+   * @param actingPrincipal authenticated user; required when {@code fields} is non-empty
    * @return list of {@link TableDto}
    */
   Page<TableDto> searchTables(
@@ -56,7 +56,7 @@ public interface TablesService {
       int page,
       int size,
       String sortBy,
-      List<String> columns,
+      List<String> fields,
       String actingPrincipal);
 
   /**

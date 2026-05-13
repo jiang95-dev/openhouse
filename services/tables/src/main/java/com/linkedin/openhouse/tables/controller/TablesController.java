@@ -5,7 +5,6 @@ import static com.linkedin.openhouse.common.security.AuthenticationUtils.*;
 import com.linkedin.openhouse.tables.api.handler.TablesApiHandler;
 import com.linkedin.openhouse.tables.api.spec.v0.request.CreateUpdateLockRequestBody;
 import com.linkedin.openhouse.tables.api.spec.v0.request.CreateUpdateTableRequestBody;
-import com.linkedin.openhouse.tables.api.spec.v0.request.SearchTablesRequestBody;
 import com.linkedin.openhouse.tables.api.spec.v0.request.UpdateAclPoliciesRequestBody;
 import com.linkedin.openhouse.tables.api.spec.v0.response.GetAclPoliciesResponseBody;
 import com.linkedin.openhouse.tables.api.spec.v0.response.GetAllSoftDeletedTablesResponseBody;
@@ -17,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -122,20 +122,16 @@ public class TablesController {
       @RequestParam(required = false) String sortBy,
       @Parameter(
               description =
-                  "Optional body to request additional columns be populated on each table. "
-                      + "If omitted, only databaseId and tableId are returned.",
-              schema = @Schema(implementation = SearchTablesRequestBody.class))
-          @RequestBody(required = false)
-          SearchTablesRequestBody searchTablesRequestBody) {
+                  "Optional list of GetTableResponseBody field names to populate beyond the "
+                      + "identifiers (databaseId, tableId). Requires SYSTEM_ADMIN on the database "
+                      + "when set. Supported values: \"tableLocation\". Accepts comma-separated "
+                      + "(?fields=a,b) or repeated (?fields=a&fields=b) values.")
+          @RequestParam(name = "fields", required = false)
+          List<String> fields) {
 
     com.linkedin.openhouse.common.api.spec.ApiResponse<GetAllTablesResponseBody> apiResponse =
         tablesApiHandler.searchTables(
-            databaseId,
-            page,
-            size,
-            sortBy,
-            searchTablesRequestBody == null ? null : searchTablesRequestBody.getColumns(),
-            extractAuthenticatedUserPrincipal());
+            databaseId, page, size, sortBy, fields, extractAuthenticatedUserPrincipal());
 
     return new ResponseEntity<>(
         apiResponse.getResponseBody(), apiResponse.getHttpHeaders(), apiResponse.getHttpStatus());

@@ -68,16 +68,16 @@ public class OpenHouseTablesApiHandler implements TablesApiHandler {
       int page,
       int size,
       String sortBy,
-      List<String> columns,
+      List<String> fields,
       String actingPrincipal) {
-    tablesApiValidator.validateSearchTables(databaseId, page, size, sortBy, columns);
+    tablesApiValidator.validateSearchTables(databaseId, page, size, sortBy, fields);
     return ApiResponse.<GetAllTablesResponseBody>builder()
         .httpStatus(HttpStatus.OK)
         .responseBody(
             GetAllTablesResponseBody.builder()
                 .pageResults(
                     tableService
-                        .searchTables(databaseId, page, size, sortBy, columns, actingPrincipal)
+                        .searchTables(databaseId, page, size, sortBy, fields, actingPrincipal)
                         .map(tableDto -> tablesMapper.toGetTableResponseBody(tableDto)))
                 .build())
         .build();

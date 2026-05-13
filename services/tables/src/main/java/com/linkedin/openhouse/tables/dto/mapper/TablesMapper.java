@@ -160,14 +160,14 @@ public interface TablesMapper {
   TableDto toTableDto(TableIdentifier tableIdentifier);
 
   /**
-   * Build a partially-populated TableDto from a HouseTable, populating only the columns the caller
+   * Build a partially-populated TableDto from a HouseTable, populating only the fields the caller
    * requested. Identifier fields (databaseId, tableId) are always populated. Used by the paginated
    * search endpoint to avoid loading metadata.json per table.
    */
-  default TableDto toTableDto(HouseTable houseTable, Set<String> columns) {
+  default TableDto toTableDto(HouseTable houseTable, Set<String> fields) {
     TableDto.TableDtoBuilder builder =
         TableDto.builder().databaseId(houseTable.getDatabaseId()).tableId(houseTable.getTableId());
-    if (columns != null && columns.contains("tableLocation")) {
+    if (fields != null && fields.contains("tableLocation")) {
       builder.tableLocation(houseTable.getTableLocation());
     }
     return builder.build();
