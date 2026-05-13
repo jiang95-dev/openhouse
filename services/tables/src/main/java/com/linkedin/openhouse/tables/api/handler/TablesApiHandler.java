@@ -39,17 +39,24 @@ public interface TablesApiHandler {
   /**
    * Function to Get one Page of Table Resources in a given databaseId given the page size and sort
    * the results by the sortBy field. The caller may optionally request that additional columns
-   * (beyond databaseId + tableId) be populated on each returned table.
+   * (beyond databaseId + tableId) be populated on each returned table. When {@code columns} is
+   * non-empty, {@code actingPrincipal} must hold SYSTEM_ADMIN on the database.
    *
    * @param databaseId
    * @param page
    * @param size
    * @param sortBy
    * @param columns optional list of GetTableResponseBody field names to populate
+   * @param actingPrincipal authenticated user; required when {@code columns} is non-empty
    * @return A page of tables in the given database.
    */
   ApiResponse<GetAllTablesResponseBody> searchTables(
-      String databaseId, int page, int size, String sortBy, List<String> columns);
+      String databaseId,
+      int page,
+      int size,
+      String sortBy,
+      List<String> columns,
+      String actingPrincipal);
 
   /**
    * Function to Create Table Resource in a given databaseId

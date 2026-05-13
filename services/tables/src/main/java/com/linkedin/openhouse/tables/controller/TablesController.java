@@ -134,7 +134,8 @@ public class TablesController {
             page,
             size,
             sortBy,
-            searchTablesRequestBody == null ? null : searchTablesRequestBody.getColumns());
+            searchTablesRequestBody == null ? null : searchTablesRequestBody.getColumns(),
+            extractAuthenticatedUserPrincipal());
 
     return new ResponseEntity<>(
         apiResponse.getResponseBody(), apiResponse.getHttpHeaders(), apiResponse.getHttpStatus());

@@ -37,16 +37,27 @@ public interface TablesService {
    * identifier fields plus any HouseTable-resident columns listed in {@code columns}. Passing null
    * or empty returns identifier-only dtos.
    *
+   * <p>When {@code columns} is non-empty, {@code actingPrincipal} must hold the {@code
+   * SYSTEM_ADMIN} privilege on the database — per-table sharing ACLs are not consulted by this
+   * call, so this guard prevents non-admins from bulk-reading column data they would not be able to
+   * read table-by-table.
+   *
    * @param databaseId
    * @param page
    * @param size
    * @param sortBy
    * @param columns optional list of {@link TableDto}/{@code GetTableResponseBody} field names to
    *     populate in addition to identifiers
+   * @param actingPrincipal authenticated user; required when {@code columns} is non-empty
    * @return list of {@link TableDto}
    */
   Page<TableDto> searchTables(
-      String databaseId, int page, int size, String sortBy, List<String> columns);
+      String databaseId,
+      int page,
+      int size,
+      String sortBy,
+      List<String> columns,
+      String actingPrincipal);
 
   /**
    * Given a {@link CreateUpdateTableRequestBody}, create or update a Openhouse table for it

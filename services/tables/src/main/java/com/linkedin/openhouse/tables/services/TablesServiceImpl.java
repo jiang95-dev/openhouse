@@ -82,7 +82,16 @@ public class TablesServiceImpl implements TablesService {
 
   @Override
   public Page<TableDto> searchTables(
-      String databaseId, int page, int size, String sortBy, List<String> columns) {
+      String databaseId,
+      int page,
+      int size,
+      String sortBy,
+      List<String> columns,
+      String actingPrincipal) {
+    if (columns != null && !columns.isEmpty()) {
+      authorizationUtils.checkDatabasePrivilege(
+          databaseId, actingPrincipal, Privileges.SYSTEM_ADMIN);
+    }
     Pageable pageable = createPageable(page, size, sortBy, null);
     return openHouseInternalRepository.searchTables(databaseId, pageable, columns);
   }

@@ -65,7 +65,12 @@ public class MockTablesApiHandler implements TablesApiHandler {
 
   @Override
   public ApiResponse<GetAllTablesResponseBody> searchTables(
-      String databaseId, int page, int size, String sortBy, List<String> columns) {
+      String databaseId,
+      int page,
+      int size,
+      String sortBy,
+      List<String> columns,
+      String actingPrincipal) {
     return null;
   }
 
