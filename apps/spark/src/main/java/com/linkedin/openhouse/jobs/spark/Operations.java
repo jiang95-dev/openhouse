@@ -334,15 +334,17 @@ public final class Operations implements AutoCloseable {
     TableScan scan = table.newScan().filter(filter);
     try (CloseableIterable<FileScanTask> filesIterable = scan.planFiles()) {
       List<FileScanTask> filesList = Lists.newArrayList(filesIterable);
-      for (FileScanTask task : filesList) {
-        if (task.residual() != Expressions.alwaysTrue()) {
-          throw new IllegalStateException(
-              String.format(
-                  "Retention with backup enabled requires a metadata-only delete for table %s, "
-                      + "but file %s has residual filter %s, which would require a row-level rewrite.",
-                  fqtn, task.file().path(), task.residual()));
-        }
-      }
+      filesList.stream()
+          .filter(task -> task.residual() != Expressions.alwaysTrue())
+          .findFirst()
+          .ifPresent(
+              task -> {
+                throw new IllegalStateException(
+                    String.format(
+                        "Retention with backup enabled requires a metadata-only delete for table %s, "
+                            + "but file %s has residual filter %s, which would require a row-level rewrite.",
+                        fqtn, task.file().path(), task.residual()));
+              });
       return filesList.stream()
           .collect(
               Collectors.groupingBy(
