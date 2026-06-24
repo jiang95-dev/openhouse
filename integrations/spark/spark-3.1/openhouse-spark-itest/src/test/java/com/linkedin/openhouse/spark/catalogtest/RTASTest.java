@@ -10,6 +10,7 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.catalog.Catalog;
 import org.apache.iceberg.catalog.TableIdentifier;
+import org.apache.iceberg.exceptions.BadRequestException;
 import org.apache.iceberg.relocated.com.google.common.collect.Iterables;
 import org.apache.iceberg.types.Types;
 import org.apache.spark.sql.Row;
@@ -112,6 +113,29 @@ public class RTASTest extends OpenHouseSparkITest {
               .sql(String.format("SELECT id, data, part FROM %s ORDER BY part, id", tableName))
               .collectAsList();
       assertEquals(3, rows.size());
+    }
+  }
+
+  @Test
+  public void testRTASFailsWhenReplaceDisabled() throws Exception {
+    try (SparkSession spark = getSparkSession()) {
+      // create the table without opting into RTAS; replace is disabled by default
+      spark.sql(
+          String.format(
+              "CREATE TABLE %s USING iceberg AS SELECT * FROM %s", tableName, sourceName));
+
+      // REPLACE TABLE should be rejected because 'replace.enabled' is not set on the table
+      BadRequestException exception =
+          assertThrows(
+              BadRequestException.class,
+              () ->
+                  spark.sql(
+                      String.format(
+                          "REPLACE TABLE %s USING iceberg AS SELECT * FROM %s",
+                          tableName, sourceName)));
+      assertTrue(
+          exception.getMessage().contains("Replace (RTAS) is not enabled"),
+          "Expected an RTAS-disabled error but got: " + exception.getMessage());
     }
   }
 
