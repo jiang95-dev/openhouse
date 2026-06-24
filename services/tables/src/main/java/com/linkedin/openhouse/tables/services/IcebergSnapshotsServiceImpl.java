@@ -67,6 +67,8 @@ public class IcebergSnapshotsServiceImpl implements IcebergSnapshotsService {
 
     if (tableDto.isPresent()
         && icebergSnapshotRequestBody.getCreateUpdateTableRequestBody().isReplaceCommit()) {
+      // RTAS is gated per-table and disabled by default; ensure it is enabled on the table.
+      authorizationUtils.checkReplaceTableEnabled(tableDto.get());
       // Check if table creator has the privilege to replace the table.
       authorizationUtils.checkReplaceTablePrivilege(tableDto.get(), tableCreatorUpdater);
     } else if (tableDto.isPresent()) {

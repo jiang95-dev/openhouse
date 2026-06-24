@@ -20,6 +20,7 @@ import com.linkedin.openhouse.tables.common.TableType;
 import com.linkedin.openhouse.tables.model.TableDto;
 import com.linkedin.openhouse.tables.model.TableDtoPrimaryKey;
 import com.linkedin.openhouse.tables.repository.OpenHouseInternalRepository;
+import com.linkedin.openhouse.tables.utils.AuthorizationUtils;
 import com.linkedin.openhouse.tablestest.annotation.CustomParameterResolver;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -312,6 +313,12 @@ public class SnapshotsControllerTest {
   @MethodSource("responseBodyFeeder")
   public void testPutSnapshotsReplaceCommit(GetTableResponseBody getTableResponseBody)
       throws Exception {
+    // RTAS is disabled by default; enable it via the table property so the replace commit is
+    // allowed.
+    Map<String, String> propsWithRtas = new HashMap<>(getTableResponseBody.getTableProperties());
+    propsWithRtas.put(AuthorizationUtils.RTAS_ENABLED_TABLE_PROP, "true");
+    getTableResponseBody = getTableResponseBody.toBuilder().tableProperties(propsWithRtas).build();
+
     // Step 1: Create a table
     MvcResult createResult =
         RequestAndValidateHelper.createTableAndValidateResponse(

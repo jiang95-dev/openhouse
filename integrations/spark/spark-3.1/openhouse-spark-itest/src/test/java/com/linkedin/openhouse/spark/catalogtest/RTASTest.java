@@ -60,6 +60,10 @@ public class RTASTest extends OpenHouseSparkITest {
 
       spark.sql(String.format("ALTER TABLE %s SET POLICY (HISTORY MAX_AGE=24H)", tableName));
 
+      // RTAS is disabled by default; opt the table in before replacing it.
+      spark.sql(
+          String.format("ALTER TABLE %s SET TBLPROPERTIES ('replace.enabled'='true')", tableName));
+
       String expectedTableLocation = catalog.loadTable(tableIdent).location();
 
       // replace table
@@ -125,6 +129,10 @@ public class RTASTest extends OpenHouseSparkITest {
 
       String expectedTableLocation = catalog.loadTable(tableIdent).location();
 
+      // RTAS is disabled by default; opt the table in before replacing it.
+      spark.sql(
+          String.format("ALTER TABLE %s SET TBLPROPERTIES ('replace.enabled'='true')", tableName));
+
       // create or replace table should replace the table
       spark.sql(
           String.format(
@@ -168,6 +176,10 @@ public class RTASTest extends OpenHouseSparkITest {
       Catalog catalog = getOpenHouseCatalog(spark);
 
       spark.table(sourceName).writeTo(tableName).using("iceberg").create();
+
+      // RTAS is disabled by default; opt the table in before replacing it.
+      spark.sql(
+          String.format("ALTER TABLE %s SET TBLPROPERTIES ('replace.enabled'='true')", tableName));
 
       String expectedTableLocation = catalog.loadTable(tableIdent).location();
 
@@ -225,6 +237,10 @@ public class RTASTest extends OpenHouseSparkITest {
           .partitionedBy(col("part"))
           .using("iceberg")
           .createOrReplace();
+
+      // RTAS is disabled by default; opt the table in before replacing it.
+      spark.sql(
+          String.format("ALTER TABLE %s SET TBLPROPERTIES ('replace.enabled'='true')", tableName));
 
       String expectedTableLocation = catalog.loadTable(tableIdent).location();
 

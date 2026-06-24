@@ -1,10 +1,12 @@
 package com.linkedin.openhouse.tables.utils;
 
+import com.linkedin.openhouse.common.exception.UnsupportedClientOperationException;
 import com.linkedin.openhouse.tables.authorization.AuthorizationHandler;
 import com.linkedin.openhouse.tables.authorization.Privileges;
 import com.linkedin.openhouse.tables.common.TableType;
 import com.linkedin.openhouse.tables.model.DatabaseDto;
 import com.linkedin.openhouse.tables.model.TableDto;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -14,6 +16,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class AuthorizationUtils {
+
+  /**
+   * Table property that gates RTAS (Replace Table As Select). RTAS is disabled by default; a table
+   * can only be replaced when this property is explicitly set to {@code true}.
+   */
+  public static final String RTAS_ENABLED_TABLE_PROP = "replace.enabled";
 
   @Autowired AuthorizationHandler authorizationHandler;
 
@@ -116,6 +124,27 @@ public class AuthorizationUtils {
               tableDto.getTableId(),
               tableDto.getTableCreator(),
               actingPrincipal));
+    }
+  }
+
+  /**
+   * Checks if RTAS (Replace Table As Select) is enabled for the table. RTAS is disabled by default
+   * and a table can only be replaced once its {@value #RTAS_ENABLED_TABLE_PROP} table property has
+   * been explicitly set to {@code true}. The check is performed against the table's persisted
+   * properties so the gate cannot be bypassed by the incoming request body.
+   *
+   * @param tableDto the existing table targeted by the replace operation
+   */
+  public void checkReplaceTableEnabled(TableDto tableDto) {
+    Map<String, String> tableProperties = tableDto.getTableProperties();
+    if (tableProperties == null
+        || !Boolean.parseBoolean(tableProperties.get(RTAS_ENABLED_TABLE_PROP))) {
+      throw new UnsupportedClientOperationException(
+          UnsupportedClientOperationException.Operation.RTAS_ON_DISABLED_TABLE,
+          String.format(
+              "Replace (RTAS) is not enabled for table %s.%s. Set the table property '%s=true' "
+                  + "before issuing a replace.",
+              tableDto.getDatabaseId(), tableDto.getTableId(), RTAS_ENABLED_TABLE_PROP));
     }
   }
 }
